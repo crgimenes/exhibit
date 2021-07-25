@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"unicode"
 
-	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/sys/unix"
+	terminal "golang.org/x/term"
 )
 
 type Console struct {
@@ -30,15 +30,23 @@ func getSize(fd int) (width, height int, err error) {
 	return int(ws.Col), int(ws.Row), nil
 }
 
-func update(term *terminal.Terminal) {
-	term.Write([]byte("teste write"))
+func (co *Console) update() {
+	co.Print("test print string")
 
 	w, h, err := getSize(syscall.Stdin)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("%dx%d\r\n", w, h)
+	co.Printf("%dx%d\r\n", w, h)
 
+}
+
+func (co *Console) Print(a ...interface{}) (n int, err error) {
+	return fmt.Fprint(co.term, a...)
+}
+
+func (co *Console) Printf(format string, a ...interface{}) (n int, err error) {
+	return fmt.Fprintf(co.term, format, a...)
 }
 
 func New() *Console {
@@ -61,7 +69,7 @@ func (co *Console) InkeyLoop() {
 			return
 		}
 		if c == 'i' {
-			err = co.inlineImagesProtocol(co.term, "./nonfree/crg.png")
+			err = co.inlineImagesProtocol("./nonfree/crg.png")
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -88,7 +96,7 @@ func (co *Console) InkeyLoop() {
 	}
 }
 
-func (co *Console) inlineImagesProtocol(term *terminal.Terminal, file string) error {
+func (co *Console) inlineImagesProtocol(file string) error {
 	f, err := os.Open(file)
 	if err != nil {
 		return err
@@ -102,10 +110,9 @@ func (co *Console) inlineImagesProtocol(term *terminal.Terminal, file string) er
 	encoded := base64.StdEncoding.EncodeToString(content)
 	nb := base64.StdEncoding.EncodeToString([]byte(filepath.Base(file)))
 
-	term.Write([]byte(fmt.Sprintf("\033]1337;File=name=%s;inline=1preserveAspectRatio=1;size=%d:", nb, len(encoded))))
-
-	term.Write([]byte(encoded))
-	term.Write([]byte("\a"))
+	co.Printf("\033]1337;File=name=%s;inline=1preserveAspectRatio=1;size=%d:", nb, len(encoded))
+	co.Print(encoded)
+	co.Print("\a")
 	return nil
 }
 
@@ -134,7 +141,7 @@ func (co *Console) Prepare() (err error) {
 	resize := make(chan os.Signal)
 	go func() {
 		for range resize {
-			update(co.term)
+			co.update()
 		}
 	}()
 	signal.Notify(resize, syscall.SIGWINCH)
