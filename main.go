@@ -4,13 +4,21 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/crgimenes/exhibit/config"
 	"github.com/crgimenes/exhibit/console"
 )
 
 func main() {
-	co := console.New()
 
-	err := co.Prepare()
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	co := console.New(cfg)
+
+	err = co.Prepare()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

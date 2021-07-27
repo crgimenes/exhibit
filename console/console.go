@@ -12,10 +12,12 @@ import (
 	"syscall"
 	"unicode"
 
+	"github.com/crgimenes/exhibit/config"
 	terminal "golang.org/x/term"
 )
 
 type Console struct {
+	cfg      *config.Config
 	reader   *bufio.Reader
 	term     *terminal.Terminal
 	oldState *terminal.State
@@ -40,8 +42,10 @@ func (co *Console) Printf(format string, a ...interface{}) (n int, err error) {
 	return fmt.Fprintf(co.term, format, a...)
 }
 
-func New() *Console {
-	return &Console{}
+func New(cfg *config.Config) *Console {
+	return &Console{
+		cfg: cfg,
+	}
 }
 
 func (co *Console) Restore() {
