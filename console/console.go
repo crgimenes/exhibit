@@ -12,7 +12,6 @@ import (
 	"syscall"
 	"unicode"
 
-	"golang.org/x/sys/unix"
 	terminal "golang.org/x/term"
 )
 
@@ -22,18 +21,10 @@ type Console struct {
 	oldState *terminal.State
 }
 
-func getSize(fd int) (width, height int, err error) {
-	ws, err := unix.IoctlGetWinsize(fd, unix.TIOCGWINSZ)
-	if err != nil {
-		return -1, -1, err
-	}
-	return int(ws.Col), int(ws.Row), nil
-}
-
 func (co *Console) update() {
 	co.Print("test print string")
 
-	w, h, err := getSize(syscall.Stdin)
+	w, h, err := terminal.GetSize(syscall.Stdin)
 	if err != nil {
 		fmt.Println(err)
 	}
