@@ -25,5 +25,5 @@ func main() {
 	}
 
 	defer co.Restore()
-	co.InkeyLoop()
+	co.Loop()
 }
