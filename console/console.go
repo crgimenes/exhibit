@@ -13,6 +13,7 @@ import (
 	"unicode"
 
 	"github.com/crgimenes/exhibit/config"
+	"github.com/crgimenes/exhibit/files"
 	terminal "golang.org/x/term"
 )
 
@@ -21,6 +22,9 @@ type Console struct {
 	reader   *bufio.Reader
 	term     *terminal.Terminal
 	oldState *terminal.State
+	files    []string
+	pageID   int
+	totPages int
 }
 
 func (co *Console) update() {
@@ -31,7 +35,6 @@ func (co *Console) update() {
 		fmt.Println(err)
 	}
 	co.Printf("%dx%d\r\n", w, h)
-
 }
 
 func (co *Console) Print(a ...interface{}) (n int, err error) {
@@ -52,11 +55,13 @@ func (co *Console) Restore() {
 	terminal.Restore(syscall.Stdin, co.oldState)
 }
 
-func (co *Console) InkeyLoop() {
+func (co *Console) Loop() {
 	var (
 		c   rune
 		err error
 	)
+
+	co.update()
 
 	for {
 		c, _, err = co.reader.ReadRune()
@@ -79,6 +84,10 @@ func (co *Console) InkeyLoop() {
 				return
 			}
 			fmt.Printf("line: %s\r\n", line)
+			continue
+		}
+		if c == 'h' { // left in normal mode
+			co.update()
 			continue
 		}
 		if unicode.IsControl(c) {
@@ -140,5 +149,7 @@ func (co *Console) Prepare() (err error) {
 		}
 	}()
 	signal.Notify(resize, syscall.SIGWINCH)
-	return nil
+
+	co.files, err = files.Find(co.cfg.Root, ".md")
+	return err
 }
