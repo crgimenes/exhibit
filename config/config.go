@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	Root string `json:"root" cfg:"root" cfgDefault:"./"`
+	Root string `json:"root" cfg:"root" cfgDefault:"."`
 }
 
 func Load() (*Config, error) {
