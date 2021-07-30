@@ -58,73 +58,72 @@ func (co *Console) Restore() {
 	terminal.Restore(syscall.Stdin, co.oldState)
 }
 
-func (co *Console) Loop() {
+func (co *Console) Loop() error {
 	var (
 		c   rune
 		err error
+		cmd string
 	)
 
 	co.update()
 
 	for {
 		c, _, err = co.reader.ReadRune()
-		if c == 27 { // read escape sequence
-			fmt.Print("esc\r\n")
+		if err != nil {
+			return err
+		}
+
+		switch c {
+		case 27: // ESC, try to parse control sequence
 			c, _, err = co.reader.ReadRune()
-			fmt.Printf("%d ('%c')\r\n", c, c)
-			if c == '[' { // control sequence
+			if err != nil {
+				return err
+			}
+
+			if c == '[' { // `ESC[` CSI, Control Sequence Introducer
 				c, _, err = co.reader.ReadRune()
-				if c == 'A' { // up
-					fmt.Println("up")
+				if err != nil {
+					return err
 				}
-				if c == 'B' { // down
-					fmt.Println("down")
-				}
-				if c == 'C' { // left
 
-					fmt.Println("left")
-				}
-				if c == 'D' { // right
-					fmt.Println("right")
-				}
-				fmt.Printf("%d ('%c')\r\n", c, c)
+				switch c {
+				case 'A': // up
+					fmt.Print("up\r\n")
 
+				case 'B': // down
+					fmt.Print("down\r\n")
+
+				case 'C': // left
+					fmt.Print("left\r\n")
+
+				case 'D': // right
+					fmt.Print("right\r\n")
+
+				default:
+					fmt.Printf("ESC[%c\r\n", c)
+				}
 				continue
 			}
-		}
 
-		if c == 'q' {
-			return
-		}
-		if c == 'i' {
-			err = co.inlineImagesProtocol("./nonfree/crg.png")
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			continue
-		}
-		if c == ':' {
+		case 'q': // quit
+			return nil
+		case ':': // command mode
+
 			fmt.Printf(":")
-			line, err := co.term.ReadLine()
+			cmd, err = co.term.ReadLine()
 			if err != nil {
-				fmt.Println(err)
-				return
+				return err
 			}
-			fmt.Printf("line: %s\r\n", line)
+			fmt.Printf("\r\ncmd line: %s\r\n", cmd)
 			continue
+
+		default:
+			if unicode.IsControl(c) {
+				fmt.Printf("contol %d\r\n", c)
+				continue
+			}
+			fmt.Printf("%d ('%c')\r\n", c, c)
 		}
-		if c == 'h' { // left in normal mode
-			co.update()
-			continue
-		}
-		if unicode.IsControl(c) {
-			fmt.Printf("contol %d\r\n", c)
-			fmt.Printf("%c", c)
-			continue
-		}
-		//fmt.Printf("%c", c)
-		fmt.Printf("%d ('%c')\r\n", c, c)
 	}
 }
 

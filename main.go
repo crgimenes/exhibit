@@ -25,5 +25,8 @@ func main() {
 	}
 
 	defer co.Restore()
-	co.Loop()
+	err = co.Loop()
+	if err != nil {
+		fmt.Println(err)
+	}
 }
