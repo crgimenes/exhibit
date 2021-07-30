@@ -1,7 +1,14 @@
 package compiler
 
 import (
+	"bufio"
+	"bytes"
+	"encoding/base64"
+	"fmt"
 	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 type Compiler struct {
@@ -12,8 +19,37 @@ func New() *Compiler {
 }
 
 func (c *Compiler) CompileFile(file string, w io.Writer) error {
-	w.Write([]byte(file))
-	w.Write([]byte("\r\n"))
-	w.Write([]byte("teste compile writer\r\n"))
+	var buf bytes.Buffer
+	buf.WriteString(file)
+	buf.WriteString("\r\n")
+	buf.WriteString("teste compile writer\r\n")
+	buf.WriteTo(w)
+	return nil
+}
+
+func (co *Compiler) inlineImagesProtocol(file string, w io.Writer) error {
+	f, err := os.Open(file)
+	if err != nil {
+		return err
+	}
+	reader := bufio.NewReader(f)
+	content, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+
+	encoded := base64.StdEncoding.EncodeToString(content)
+	nb := base64.StdEncoding.EncodeToString([]byte(filepath.Base(file)))
+
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf(
+		"\033]1337;File=name=%s;inline=1preserveAspectRatio=1;size=%d:",
+		nb,
+		len(encoded)))
+
+	buf.WriteString(encoded)
+	buf.WriteString("\a")
+	buf.WriteTo(w)
+
 	return nil
 }

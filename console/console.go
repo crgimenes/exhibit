@@ -2,13 +2,10 @@ package console
 
 import (
 	"bufio"
-	"encoding/base64"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"unicode"
 
@@ -125,26 +122,6 @@ func (co *Console) Loop() error {
 			fmt.Printf("%d ('%c')\r\n", c, c)
 		}
 	}
-}
-
-func (co *Console) inlineImagesProtocol(file string) error {
-	f, err := os.Open(file)
-	if err != nil {
-		return err
-	}
-	reader := bufio.NewReader(f)
-	content, err := ioutil.ReadAll(reader)
-	if err != nil {
-		return err
-	}
-
-	encoded := base64.StdEncoding.EncodeToString(content)
-	nb := base64.StdEncoding.EncodeToString([]byte(filepath.Base(file)))
-
-	co.Printf("\033]1337;File=name=%s;inline=1preserveAspectRatio=1;size=%d:", nb, len(encoded))
-	co.Print(encoded)
-	co.Print("\a")
-	return nil
 }
 
 func (co *Console) Prepare() (err error) {
