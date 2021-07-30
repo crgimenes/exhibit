@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"fmt"
 	"io"
 )
 
@@ -13,7 +12,8 @@ func New() *Compiler {
 }
 
 func (c *Compiler) CompileFile(file string, w io.Writer) error {
-	fmt.Println(file)
+	w.Write([]byte(file))
+	w.Write([]byte("\r\n"))
 	w.Write([]byte("teste compile writer\r\n"))
 	return nil
 }

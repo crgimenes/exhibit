@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"unicode"
 
+	"github.com/crgimenes/exhibit/compiler"
 	"github.com/crgimenes/exhibit/config"
 	"github.com/crgimenes/exhibit/files"
 	terminal "golang.org/x/term"
@@ -28,13 +29,15 @@ type Console struct {
 }
 
 func (co *Console) update() {
-	co.Print("test print string")
+	co.Print("test print string\r\n")
 
 	w, h, err := terminal.GetSize(syscall.Stdin)
 	if err != nil {
 		fmt.Println(err)
 	}
 	co.Printf("%dx%d\r\n", w, h)
+	c := compiler.New()
+	c.CompileFile(co.files[0], co.term)
 }
 
 func (co *Console) Print(a ...interface{}) (n int, err error) {
@@ -65,6 +68,31 @@ func (co *Console) Loop() {
 
 	for {
 		c, _, err = co.reader.ReadRune()
+		if c == 27 { // read escape sequence
+			fmt.Print("esc\r\n")
+			c, _, err = co.reader.ReadRune()
+			fmt.Printf("%d ('%c')\r\n", c, c)
+			if c == '[' { // control sequence
+				c, _, err = co.reader.ReadRune()
+				if c == 'A' { // up
+					fmt.Println("up")
+				}
+				if c == 'B' { // down
+					fmt.Println("down")
+				}
+				if c == 'C' { // left
+
+					fmt.Println("left")
+				}
+				if c == 'D' { // right
+					fmt.Println("right")
+				}
+				fmt.Printf("%d ('%c')\r\n", c, c)
+
+				continue
+			}
+		}
+
 		if c == 'q' {
 			return
 		}
@@ -91,12 +119,12 @@ func (co *Console) Loop() {
 			continue
 		}
 		if unicode.IsControl(c) {
-			//fmt.Printf("contol %d\r\n", c)
+			fmt.Printf("contol %d\r\n", c)
 			fmt.Printf("%c", c)
 			continue
 		}
-		fmt.Printf("%c", c)
-		//fmt.Printf("%d ('%c')\r\n", c, c)
+		//fmt.Printf("%c", c)
+		fmt.Printf("%d ('%c')\r\n", c, c)
 	}
 }
 
