@@ -77,31 +77,52 @@ func (co *Console) Loop() error {
 				return err
 			}
 
-			if c == '[' { // `ESC[` CSI, Control Sequence Introducer
-				c, _, err = co.reader.ReadRune()
-				if err != nil {
-					return err
+			switch c {
+
+			case '[': // `ESC[` CSI, Control Sequence Introducer
+				csi := true
+				s := ""
+
+			loopCSI:
+				for csi {
+					c, _, err = co.reader.ReadRune()
+					if err != nil {
+						return err
+					}
+					switch c {
+					case 'A': // up
+						fmt.Print("up\r\n")
+						csi = false
+						break loopCSI
+					case 'B': // down
+						fmt.Print("down\r\n")
+						csi = false
+						break loopCSI
+					case 'C': // left
+						fmt.Print("left\r\n")
+						csi = false
+						break loopCSI
+					case 'D': // right
+						fmt.Print("right\r\n")
+						csi = false
+						break loopCSI
+
+					default:
+
+						if c >= 'a' && c <= 'z' ||
+							c >= 'A' && c <= 'Z' ||
+							c == '~' {
+
+							fmt.Printf("ESC[%s%c\r\n", s, c)
+							csi = false
+							break loopCSI
+						}
+						s += string(c)
+					}
 				}
-
-				switch c {
-				case 'A': // up
-					fmt.Print("up\r\n")
-
-				case 'B': // down
-					fmt.Print("down\r\n")
-
-				case 'C': // left
-					fmt.Print("left\r\n")
-
-				case 'D': // right
-					fmt.Print("right\r\n")
-
-				default:
-					fmt.Printf("ESC[%c\r\n", c)
-				}
-				continue
+			default:
+				fmt.Printf("ESC%c", c)
 			}
-
 		case 'q': // quit
 			return nil
 		case ':': // command mode
@@ -116,10 +137,13 @@ func (co *Console) Loop() error {
 
 		default:
 			if unicode.IsControl(c) {
+				if c == 3 { // ^c terminate
+					return nil
+				}
 				fmt.Printf("contol %d\r\n", c)
 				continue
 			}
-			fmt.Printf("%d ('%c')\r\n", c, c)
+			fmt.Printf("%c\r\n", c)
 		}
 	}
 }
