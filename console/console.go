@@ -36,7 +36,7 @@ func (co *Console) update() {
 	}
 	co.Printf("%dx%d\r\n", co.height, co.width)
 	c := compiler.New()
-	c.CompileFile(co.files[0], co.term)
+	c.CompileFile(co.files[co.pageID], co.term)
 }
 
 func (co *Console) Print(a ...interface{}) (n int, err error) {
@@ -97,13 +97,19 @@ func (co *Console) Loop() error {
 					case 'B': // down
 						csi = false
 						break loopCSI
-					case 'C': // left
-						csi = false
-						break loopCSI
-					case 'D': // right
+					case 'C': // right
+						if co.pageID < co.totPages-1 {
+							co.pageID++
+						}
 						csi = false
 						break loopCSI
 
+					case 'D': // left
+						if co.pageID > 0 {
+							co.pageID--
+						}
+						csi = false
+						break loopCSI
 					default:
 
 						if c >= 'a' && c <= 'z' ||
@@ -133,7 +139,6 @@ func (co *Console) Loop() error {
 			if cmd == "q" {
 				return nil
 			}
-			co.Printf("\r\ncmd line: %s\r\n", cmd)
 			continue
 		}
 	}
@@ -170,5 +175,6 @@ func (co *Console) Prepare() (err error) {
 	signal.Notify(resize, syscall.SIGWINCH)
 
 	co.files, err = files.Find(co.cfg.Root, ".md")
+	co.totPages = len(co.files)
 	return err
 }
