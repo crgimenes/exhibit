@@ -22,7 +22,29 @@ func (c *Compiler) CompileFile(file string, w io.Writer) error {
 	var buf bytes.Buffer
 	buf.WriteString(file)
 	buf.WriteString("\r\n")
-	buf.WriteString("teste compile writer\r\n")
+
+	f, err := os.Open(file)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	r := bufio.NewReader(f)
+	var o rune
+	for {
+		o, _, err = r.ReadRune()
+		if err != nil {
+			break
+		}
+		buf.WriteRune(o)
+
+	}
+
+	if err != io.EOF {
+		return err
+	}
+
 	buf.WriteTo(w)
 	return nil
 }

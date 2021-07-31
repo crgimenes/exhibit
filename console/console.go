@@ -19,6 +19,7 @@ type Console struct {
 	reader   *bufio.Reader
 	term     *terminal.Terminal
 	oldState *terminal.State
+	compiler *compiler.Compiler
 	files    []string
 	pageID   int
 	totPages int
@@ -27,16 +28,14 @@ type Console struct {
 }
 
 func (co *Console) update() {
-	co.Print("\033[H\033[2J")
-	co.Print("test print string\r\n")
 	var err error
 	co.width, co.height, err = terminal.GetSize(syscall.Stdin)
 	if err != nil {
 		fmt.Println(err)
 	}
+	co.Print("\033[H\033[2J")
 	co.Printf("%dx%d\r\n", co.height, co.width)
-	c := compiler.New()
-	c.CompileFile(co.files[co.pageID], co.term)
+	co.compiler.CompileFile(co.files[co.pageID], co.term)
 }
 
 func (co *Console) Print(a ...interface{}) (n int, err error) {
@@ -49,7 +48,8 @@ func (co *Console) Printf(format string, a ...interface{}) (n int, err error) {
 
 func New(cfg *config.Config) *Console {
 	return &Console{
-		cfg: cfg,
+		cfg:      cfg,
+		compiler: compiler.New(),
 	}
 }
 
