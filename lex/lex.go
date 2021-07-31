@@ -117,7 +117,7 @@ func (l *lexer) appendTok(literalValue, tokType string) {
 
 func separatorTok(l *lexer) (ok bool, err error) {
 	switch l.tokRune {
-	case '\n', '\t', '\v', '\f', '\r', ' ', 0x85, 0xA0:
+	case '\n', '\r', ' ', '\t':
 		l.appendTok(string(l.tokRune), "SEPARATOR")
 		ok = true
 	}
@@ -126,7 +126,7 @@ func separatorTok(l *lexer) (ok bool, err error) {
 
 func isIdentiferSeparator(v rune) (ok bool) {
 	switch v {
-	case '\n', '\t', '\v', '\f', '\r', ' ', 0x85, 0xA0, '(', ')':
+	case '\n', '\t', '\v', '\f', '\r', ' ', 0x85, 0xA0:
 		ok = true
 	}
 	return
