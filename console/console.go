@@ -33,9 +33,11 @@ func (co *Console) update() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	co.Print("\033[H\033[2J")
+	co.Print("\033[H\033[2J\033[?25l") // clear screen, set cursor position, hide cursor
 	co.Printf("%dx%d\r\n", co.height, co.width)
 	co.compiler.CompileFile(co.files[co.pageID], co.term)
+	co.Printf("\033[%d;0H\033[2K\033[?25h", co.height) // set position, clear line, show cursor
+
 }
 
 func (co *Console) Print(a ...interface{}) (n int, err error) {
@@ -122,14 +124,12 @@ func (co *Console) Loop() error {
 					}
 				}
 			}
-		case 'q': // quit
-			fallthrough
-		case 3: // ^c
+		case 'q', 3: // quit
 			return nil
 
 		case ':': // command mode
 
-			co.Printf("\033[%d;0H\033[2K", co.height) // set position and clear nine
+			co.Printf("\033[%d;0H\033[2K", co.height) // set position and clear line
 
 			co.term.SetPrompt(":")
 			cmd, err = co.term.ReadLine()

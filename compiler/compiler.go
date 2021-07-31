@@ -19,7 +19,7 @@ func New() *Compiler {
 }
 
 func (c *Compiler) CompileFile(file string, w io.Writer) error {
-	var buf bytes.Buffer
+	buf := bytes.Buffer{}
 	buf.WriteString(file)
 	buf.WriteString("\r\n")
 
@@ -37,8 +37,8 @@ func (c *Compiler) CompileFile(file string, w io.Writer) error {
 		if err != nil {
 			break
 		}
-		buf.WriteRune(o)
 
+		buf.WriteRune(o)
 	}
 
 	if err != io.EOF {
