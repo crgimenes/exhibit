@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"unicode"
 
 	"github.com/crgimenes/exhibit/compiler"
 	"github.com/crgimenes/exhibit/config"
@@ -23,16 +22,19 @@ type Console struct {
 	files    []string
 	pageID   int
 	totPages int
+	width    int
+	height   int
 }
 
 func (co *Console) update() {
+	co.Print("\033[H\033[2J")
 	co.Print("test print string\r\n")
-
-	w, h, err := terminal.GetSize(syscall.Stdin)
+	var err error
+	co.width, co.height, err = terminal.GetSize(syscall.Stdin)
 	if err != nil {
 		fmt.Println(err)
 	}
-	co.Printf("%dx%d\r\n", w, h)
+	co.Printf("%dx%d\r\n", co.height, co.width)
 	c := compiler.New()
 	c.CompileFile(co.files[0], co.term)
 }
@@ -62,9 +64,8 @@ func (co *Console) Loop() error {
 		cmd string
 	)
 
-	co.update()
-
 	for {
+		co.update()
 		c, _, err = co.reader.ReadRune()
 		if err != nil {
 			return err
@@ -91,19 +92,15 @@ func (co *Console) Loop() error {
 					}
 					switch c {
 					case 'A': // up
-						fmt.Print("up\r\n")
 						csi = false
 						break loopCSI
 					case 'B': // down
-						fmt.Print("down\r\n")
 						csi = false
 						break loopCSI
 					case 'C': // left
-						fmt.Print("left\r\n")
 						csi = false
 						break loopCSI
 					case 'D': // right
-						fmt.Print("right\r\n")
 						csi = false
 						break loopCSI
 
@@ -112,38 +109,32 @@ func (co *Console) Loop() error {
 						if c >= 'a' && c <= 'z' ||
 							c >= 'A' && c <= 'Z' ||
 							c == '~' {
-
-							fmt.Printf("ESC[%s%c\r\n", s, c)
 							csi = false
 							break loopCSI
 						}
 						s += string(c)
 					}
 				}
-			default:
-				fmt.Printf("ESC%c", c)
 			}
 		case 'q': // quit
+			fallthrough
+		case 3: // ^c
 			return nil
+
 		case ':': // command mode
 
-			fmt.Printf(":")
+			co.Printf("\033[%d;0H\033[2K", co.height) // set position and clear nine
+
+			co.term.SetPrompt(":")
 			cmd, err = co.term.ReadLine()
 			if err != nil {
 				return err
 			}
-			fmt.Printf("\r\ncmd line: %s\r\n", cmd)
-			continue
-
-		default:
-			if unicode.IsControl(c) {
-				if c == 3 { // ^c terminate
-					return nil
-				}
-				fmt.Printf("contol %d\r\n", c)
-				continue
+			if cmd == "q" {
+				return nil
 			}
-			fmt.Printf("%c\r\n", c)
+			co.Printf("\r\ncmd line: %s\r\n", cmd)
+			continue
 		}
 	}
 }
