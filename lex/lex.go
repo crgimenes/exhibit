@@ -118,7 +118,7 @@ func (l *lexer) appendTok(literalValue, tokType string) {
 func separatorTok(l *lexer) (ok bool, err error) {
 	switch l.tokRune {
 	case '\n', '\t', '\v', '\f', '\r', ' ', 0x85, 0xA0:
-		//l.appendTok(string(l.tokRune), "SEPARATOR")
+		l.appendTok(string(l.tokRune), "SEPARATOR")
 		ok = true
 	}
 	return
@@ -133,8 +133,12 @@ func isIdentiferSeparator(v rune) (ok bool) {
 }
 
 func singleLineCommentTok(l *lexer) (ok bool, err error) {
-	if l.tokRune == ';' {
-		var value = ";"
+	ok, err = l.ifRunePattern([]rune{'/', '/'})
+	if !ok || err != nil {
+		return
+	}
+	if l.tokRune == '/' {
+		var value = "/"
 		for l.tokRune != '\n' {
 			var size int
 			l.tokRune, size, err = l.reader.ReadRune()
@@ -241,11 +245,11 @@ func (l *lexer) ifRunePattern(pattern []rune) (ok bool, err error) {
 }
 
 func multipleLineCommentTok(l *lexer) (ok bool, err error) {
-	ok, err = l.ifRunePattern([]rune{'#', '|'})
+	ok, err = l.ifRunePattern([]rune{'/', '*'})
 	if !ok || err != nil {
 		return
 	}
-	var value = "#"
+	var value = "/"
 	for {
 		var size int
 		l.tokRune, size, err = l.reader.ReadRune()
@@ -254,12 +258,12 @@ func multipleLineCommentTok(l *lexer) (ok bool, err error) {
 		}
 		value += string(l.tokRune)
 		l.offset += size
-		ok, err = l.ifRunePattern([]rune{'|', '#'})
+		ok, err = l.ifRunePattern([]rune{'*', '/'})
 		if err != nil {
 			return
 		}
 		if ok {
-			value += "#"
+			value += "/"
 			_, _, err = l.reader.ReadRune()
 			break
 		}

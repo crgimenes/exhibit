@@ -9,6 +9,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/crgimenes/exhibit/lex"
 )
 
 type Compiler struct {
@@ -27,24 +29,38 @@ func (c *Compiler) CompileFile(file string, w io.Writer) error {
 	if err != nil {
 		return err
 	}
-
 	defer f.Close()
 
-	r := bufio.NewReader(f)
-	var o rune
-	for {
-		o, _, err = r.ReadRune()
-		if err != nil {
-			break
-		}
-
-		buf.WriteRune(o)
-	}
-
-	if err != io.EOF {
+	t, err := lex.Parse(f)
+	if err != nil {
 		return err
 	}
 
+	for _, v := range t {
+		buf.WriteString(fmt.Sprintf("%q", v.Literal))
+		buf.WriteString(" -> ")
+		buf.WriteString(v.Type)
+		buf.WriteString("|")
+		buf.WriteString("\r\n")
+	}
+
+	/*
+		r := bufio.NewReader(f)
+
+		var o rune
+		for {
+			o, _, err = r.ReadRune()
+			if err != nil {
+				break
+			}
+
+			buf.WriteRune(o)
+		}
+
+		if err != io.EOF {
+			return err
+		}
+	*/
 	buf.WriteTo(w)
 	return nil
 }
