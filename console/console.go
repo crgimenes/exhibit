@@ -175,6 +175,11 @@ func (co *Console) Prepare() (err error) {
 	signal.Notify(resize, syscall.SIGWINCH)
 
 	co.files, err = files.Find(co.cfg.Root, ".md")
+	if err != nil {
+		return err
+	}
+
 	co.totPages = len(co.files)
-	return err
+
+	return nil
 }

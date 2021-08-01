@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/crgimenes/exhibit/lex"
+	"github.com/charmbracelet/glamour"
 )
 
 type Compiler struct {
@@ -31,37 +31,30 @@ func (c *Compiler) CompileFile(file string, w io.Writer) error {
 	}
 	defer f.Close()
 
-	t, err := lex.Parse(f)
+	in, err := io.ReadAll(f)
 	if err != nil {
 		return err
 	}
 
-	for _, v := range t {
-		buf.WriteString(fmt.Sprintf("%q", v.Literal))
-		buf.WriteString(" -> ")
-		buf.WriteString(v.Type)
-		buf.WriteString("|")
-		buf.WriteString("\r\n")
+	r, _ := glamour.NewTermRenderer(
+		// detect background color and pick either the default dark or light theme
+		glamour.WithAutoStyle(),
+		// wrap output at specific width
+		glamour.WithWordWrap(40),
+	)
+
+	out, err := r.RenderBytes(in)
+	if err != nil {
+		return err
 	}
-	/*
-		r := bufio.NewReader(f)
+	_, err = buf.Write(out)
+	if err != nil {
+		return err
+	}
 
-		var o rune
-		for {
-			o, _, err = r.ReadRune()
-			if err != nil {
-				break
-			}
+	_, err = buf.WriteTo(w)
 
-			buf.WriteRune(o)
-		}
-
-		if err != io.EOF {
-			return err
-		}
-	*/
-	buf.WriteTo(w)
-	return nil
+	return err
 }
 
 func (co *Compiler) inlineImagesProtocol(file string, w io.Writer) error {
