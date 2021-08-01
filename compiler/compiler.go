@@ -20,7 +20,7 @@ func New() *Compiler {
 	return &Compiler{}
 }
 
-func (c *Compiler) CompileFile(file string, w io.Writer) error {
+func (c *Compiler) CompileFile(file string, w io.Writer, width, height int) error {
 	buf := bytes.Buffer{}
 	buf.WriteString(file)
 	buf.WriteString("\r\n")
@@ -40,7 +40,7 @@ func (c *Compiler) CompileFile(file string, w io.Writer) error {
 		// detect background color and pick either the default dark or light theme
 		glamour.WithAutoStyle(),
 		// wrap output at specific width
-		glamour.WithWordWrap(40),
+		glamour.WithWordWrap(width-1),
 	)
 
 	out, err := r.RenderBytes(in)
