@@ -3,6 +3,6 @@
 	go build -o keycap cmd/keycap/main.go
 
 clean:
-	rm -f exibit keycap
+	rm -f exhibit keycap
 
 
