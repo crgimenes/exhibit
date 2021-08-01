@@ -43,7 +43,6 @@ func (c *Compiler) CompileFile(file string, w io.Writer) error {
 		buf.WriteString("|")
 		buf.WriteString("\r\n")
 	}
-
 	/*
 		r := bufio.NewReader(f)
 
