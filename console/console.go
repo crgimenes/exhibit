@@ -34,7 +34,6 @@ func (co *Console) update() {
 		fmt.Println(err)
 	}
 	co.Print("\033[H\033[2J\033[?25l") // clear screen, set cursor position, hide cursor
-	co.Printf("%dx%d\r\n", co.height, co.width)
 	co.compiler.CompileFile(co.files[co.pageID], co.term, co.width, co.height)
 	co.Printf("\033[%d;0H\033[2K\033[?25h", co.height) // set position, clear line, show cursor
 

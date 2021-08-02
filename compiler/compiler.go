@@ -9,8 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/charmbracelet/glamour"
+	"strings"
 )
 
 type Compiler struct {
@@ -22,8 +21,6 @@ func New() *Compiler {
 
 func (c *Compiler) CompileFile(file string, w io.Writer, width, height int) error {
 	buf := bytes.Buffer{}
-	buf.WriteString(file)
-	buf.WriteString("\r\n")
 
 	f, err := os.Open(file)
 	if err != nil {
@@ -36,18 +33,20 @@ func (c *Compiler) CompileFile(file string, w io.Writer, width, height int) erro
 		return err
 	}
 
-	r, _ := glamour.NewTermRenderer(
-		// detect background color and pick either the default dark or light theme
-		glamour.WithAutoStyle(),
-		// wrap output at specific width
-		glamour.WithWordWrap(width-1),
-	)
-
-	out, err := r.RenderBytes(in)
-	if err != nil {
-		return err
+	m := strings.Split(strings.ReplaceAll(string(in), "\r\n", "\n"), "\n")
+	h := len(m)
+	if h > height-1 {
+		h = height - 1
 	}
-	_, err = buf.Write(out)
+
+	s := ""
+	for k, v := range m[:h] {
+		s += fmt.Sprintf("%d %q\r\n", k, v)
+	}
+
+	//s := strings.Join(m[:h], "\n")
+
+	_, err = buf.WriteString(s)
 	if err != nil {
 		return err
 	}
