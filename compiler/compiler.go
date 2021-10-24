@@ -44,7 +44,7 @@ func (c *Compiler) CompileFile(file string, w io.Writer, width, height int) erro
 		s += fmt.Sprintf("%d %q\r\n", k, v)
 	}
 
-	//s := strings.Join(m[:h], "\n")
+	// s := strings.Join(m[:h], "\n")
 
 	_, err = buf.WriteString(s)
 	if err != nil {

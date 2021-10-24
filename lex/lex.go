@@ -7,10 +7,10 @@ import (
 	"strconv"
 )
 
-// TokenFunction type for parser functions
+// TokenFunction type for parser functions.
 type tokenFunction func(l *lexer) (ok bool, err error)
 
-// Token data
+// Token data.
 type Token struct {
 	Type    string
 	Literal string
@@ -19,7 +19,7 @@ type Token struct {
 	Offset  int
 }
 
-// lexer data
+// lexer data.
 type lexer struct {
 	tokRune       rune
 	tokens        []Token
@@ -30,7 +30,7 @@ type lexer struct {
 	reader        io.RuneScanner
 }
 
-// Parse is a simple tokenizer engine
+// Parse is a simple tokenizer engine.
 func Parse(reader io.Reader) (tokens []Token, err error) {
 	tokens, err = parseSimpleTokens(reader)
 	if err != nil && err != io.EOF {
@@ -42,7 +42,7 @@ func Parse(reader io.Reader) (tokens []Token, err error) {
 
 func parseIdentifer(tokens []Token) (ret []Token, err error) {
 	for i := range tokens {
-		if tokens[i].Type == "IDENTIFER" {
+		if tokens[i].Type == "IDENTIFIER" {
 			if isNumeric(tokens[i].Literal) {
 				tokens[i].Type = "NUMBER"
 			}
@@ -60,7 +60,7 @@ with multiple lines, begin and end of lists, strings,
 separators and identifiers.
 */
 func parseSimpleTokens(reader io.Reader) (tokens []Token, err error) {
-	var l = lexer{
+	l := lexer{
 		tokenParsers: []tokenFunction{
 			separatorTok,
 			singleLineCommentTok,
@@ -104,9 +104,10 @@ func parseSimpleTokens(reader io.Reader) (tokens []Token, err error) {
 	return
 }
 
-// appendTok add a new token to current token list
+// appendTok add a new token to current token list.
 func (l *lexer) appendTok(literalValue, tokType string) {
-	t := Token{Type: tokType,
+	t := Token{
+		Type:    tokType,
 		Literal: literalValue,
 		Line:    l.currentLine,
 		Offset:  l.offset,
@@ -138,7 +139,7 @@ func singleLineCommentTok(l *lexer) (ok bool, err error) {
 		return
 	}
 	if l.tokRune == '/' {
-		var value = "/"
+		value := "/"
 		for l.tokRune != '\n' {
 			var size int
 			l.tokRune, size, err = l.reader.ReadRune()
@@ -205,10 +206,10 @@ func stringTok(l *lexer) (ok bool, err error) {
 }
 
 func identiferTok(l *lexer) (ok bool, err error) {
-	var identifer string
+	var identifier string
 	for !isIdentiferSeparator(l.tokRune) {
 		var size int
-		identifer += string(l.tokRune)
+		identifier += string(l.tokRune)
 		ok = true
 		l.tokRune, size, err = l.reader.ReadRune()
 		if err == io.EOF {
@@ -221,7 +222,7 @@ func identiferTok(l *lexer) (ok bool, err error) {
 		l.offset += size
 	}
 	if ok {
-		l.appendTok(identifer, "IDENTIFER")
+		l.appendTok(identifier, "IDENTIFIER")
 	}
 	return
 }
@@ -249,7 +250,7 @@ func multipleLineCommentTok(l *lexer) (ok bool, err error) {
 	if !ok || err != nil {
 		return
 	}
-	var value = "/"
+	value := "/"
 	for {
 		var size int
 		l.tokRune, size, err = l.reader.ReadRune()

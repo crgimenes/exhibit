@@ -14,7 +14,6 @@ type config struct {
 }
 
 func main() {
-
 	cfg := &config{}
 
 	err := goconfig.Parse(cfg)
@@ -44,5 +43,4 @@ func main() {
 
 		fmt.Printf("%q\r\n", c)
 	}
-
 }

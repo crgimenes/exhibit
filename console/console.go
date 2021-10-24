@@ -36,7 +36,6 @@ func (co *Console) update() {
 	co.Print("\033[H\033[2J\033[?25l") // clear screen, set cursor position, hide cursor
 	co.compiler.CompileFile(co.files[co.pageID], co.term, co.width, co.height)
 	co.Printf("\033[%d;0H\033[2K\033[?25h", co.height) // set position, clear line, show cursor
-
 }
 
 func (co *Console) Print(a ...interface{}) (n int, err error) {
@@ -80,7 +79,6 @@ func (co *Console) Loop() error {
 			}
 
 			switch c {
-
 			case '[': // `ESC[` CSI, Control Sequence Introducer
 				csi := true
 				s := ""

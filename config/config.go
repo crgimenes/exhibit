@@ -10,7 +10,6 @@ type Config struct {
 }
 
 func Load() (*Config, error) {
-
 	cfg := &Config{}
 
 	goconfig.File = "config.json"
