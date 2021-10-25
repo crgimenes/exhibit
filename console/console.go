@@ -15,16 +15,18 @@ import (
 )
 
 type Console struct {
-	cfg      *config.Config
-	reader   *bufio.Reader
-	term     *terminal.Terminal
-	oldState *terminal.State
-	compiler *compiler.Compiler
-	files    []string
-	pageID   int
-	totPages int
-	width    int
-	height   int
+	cfg       *config.Config
+	reader    *bufio.Reader
+	term      *terminal.Terminal
+	oldState  *terminal.State
+	compiler  *compiler.Compiler
+	files     []string
+	pageID    int
+	totPages  int
+	width     int
+	height    int
+	startLine int
+	maxLine   int
 }
 
 func (co *Console) update() {
@@ -32,10 +34,20 @@ func (co *Console) update() {
 	co.width, co.height, err = terminal.GetSize(syscall.Stdin)
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(-1)
 	}
 	co.Print("\033[H\033[2J\033[?25l") // clear screen, set cursor position, hide cursor
-	co.compiler.CompileFile(co.files[co.pageID], co.term, co.width, co.height)
+	co.maxLine, err = co.compiler.CompileFile(
+		co.files[co.pageID],
+		co.term,
+		co.startLine,
+		co.width,
+		co.height)
 	co.Printf("\033[%d;0H\033[2K\033[?25h", co.height) // set position, clear line, show cursor
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
 }
 
 func (co *Console) Print(a ...interface{}) (n int, err error) {
@@ -63,7 +75,7 @@ func (co *Console) Loop() error {
 		err error
 		cmd string
 	)
-
+	co.startLine = 0
 	for {
 		co.update()
 		c, _, err = co.reader.ReadRune()
@@ -91,9 +103,17 @@ func (co *Console) Loop() error {
 					}
 					switch c {
 					case 'A': // up
+						co.startLine--
+						if co.startLine < 0 {
+							co.startLine = 0
+						}
 						csi = false
 						break loopCSI
 					case 'B': // down
+						co.startLine++
+						if co.startLine > co.maxLine {
+							co.startLine = co.maxLine
+						}
 						csi = false
 						break loopCSI
 					case 'C': // right
@@ -163,7 +183,7 @@ func (co *Console) Prepare() (err error) {
 		os.Exit(0)
 	}()
 
-	resize := make(chan os.Signal)
+	resize := make(chan os.Signal, 1)
 	go func() {
 		for range resize {
 			co.update()

@@ -19,41 +19,57 @@ func New() *Compiler {
 	return &Compiler{}
 }
 
-func (c *Compiler) CompileFile(file string, w io.Writer, width, height int) error {
+func (c *Compiler) CompileFile(
+	file string,
+	w io.Writer,
+	startLine, width, height int) (maxLine int, err error) {
 	buf := bytes.Buffer{}
 
 	f, err := os.Open(file)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer f.Close()
 
 	in, err := io.ReadAll(f)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	m := strings.Split(strings.ReplaceAll(string(in), "\r\n", "\n"), "\n")
-	h := len(m)
+	maxLine = len(m)
+	h := maxLine
 	if h > height-1 {
 		h = height - 1
 	}
+	if startLine > maxLine {
+		startLine = maxLine
+	}
+
+	ln := h + startLine
+	if ln > maxLine {
+		ln = maxLine
+	}
+
+	if startLine+height > ln && ln > height {
+		startLine = ln - height
+	}
 
 	s := ""
-	for k, v := range m[:h] {
-		s += fmt.Sprintf("%d %q\r\n", k, v)
+	for k, v := range m[startLine:ln] {
+		s += fmt.Sprintf("%2d %q\r\n", k+startLine+1, v)
 	}
 
 	// s := strings.Join(m[:h], "\n")
 
 	_, err = buf.WriteString(s)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	_, err = buf.WriteTo(w)
 
-	return err
+	return maxLine, err
 }
 
 func (co *Compiler) inlineImagesProtocol(file string, w io.Writer) error {
