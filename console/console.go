@@ -78,6 +78,7 @@ func (co *Console) Loop() error {
 	co.startLine = 0
 	for {
 		co.update()
+
 		c, _, err = co.reader.ReadRune()
 		if err != nil {
 			return err
@@ -114,9 +115,16 @@ func (co *Console) Loop() error {
 						if co.startLine > co.maxLine {
 							co.startLine = co.maxLine
 						}
+						/*
+							if co.maxLine-co.height > 0 &&
+								co.startLine > co.maxLine-co.height {
+								co.startLine = co.maxLine - co.height
+							}
+						*/
 						csi = false
 						break loopCSI
 					case 'C': // right
+						co.startLine = 0
 						if co.pageID < co.totPages-1 {
 							co.pageID++
 						}
@@ -124,6 +132,7 @@ func (co *Console) Loop() error {
 						break loopCSI
 
 					case 'D': // left
+						co.startLine = 0
 						if co.pageID > 0 {
 							co.pageID--
 						}

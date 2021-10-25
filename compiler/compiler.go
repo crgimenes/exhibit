@@ -50,14 +50,17 @@ func (c *Compiler) CompileFile(
 	if ln > maxLine {
 		ln = maxLine
 	}
-
-	if startLine+height > ln && ln > height {
-		startLine = ln - height
-	}
-
+	/*
+		if startLine < 0 {
+			startLine = 0
+		}
+		if ln < 0 {
+			ln = maxLine
+		}
+	*/
 	s := ""
 	for k, v := range m[startLine:ln] {
-		s += fmt.Sprintf("%2d %q\r\n", k+startLine+1, v)
+		s += fmt.Sprintf("%2d s:%d, ln:%d m:%d %q\r\n", k+startLine+1, startLine, ln, maxLine, v)
 	}
 
 	// s := strings.Join(m[:h], "\n")
