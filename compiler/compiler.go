@@ -50,24 +50,14 @@ func (c *Compiler) CompileFile(
 	if ln > maxLine {
 		ln = maxLine
 	}
-	/*
-		if startLine < 0 {
-			startLine = 0
-		}
-		if ln < 0 {
-			ln = maxLine
-		}
-	*/
 	s := ""
 	for k, v := range m[startLine:ln] {
-		s += fmt.Sprintf("%2d s:%d, ln:%d m:%d %q\r\n", k+startLine+1, startLine, ln, maxLine, v)
-	}
-
-	// s := strings.Join(m[:h], "\n")
-
-	_, err = buf.WriteString(s)
-	if err != nil {
-		return 0, err
+		s = fmt.Sprintf("%2d s:%d, ln:%d m:%d %q\r\n", k+startLine+1, startLine, ln, maxLine, v)
+		//_, err = w.Write([]byte(s))
+		_, err = buf.WriteString(s)
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	_, err = buf.WriteTo(w)
