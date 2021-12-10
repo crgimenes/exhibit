@@ -2,25 +2,21 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"os"
-
-	"github.com/gosidekick/goconfig"
 )
 
 type config struct {
-	File string `json:"file" cfg:"f" cfgRequired:"true"`
+	File string `json:"file"`
 }
 
 func main() {
 	cfg := &config{}
 
-	err := goconfig.Parse(cfg)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	flag.StringVar(&cfg.File, "f", "", "file to read")
+	flag.Parse()
 
 	f, err := os.Open(cfg.File)
 	if err != nil {

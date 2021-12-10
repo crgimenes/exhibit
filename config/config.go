@@ -1,22 +1,27 @@
 package config
 
 import (
-	"github.com/gosidekick/goconfig"
-	_ "github.com/gosidekick/goconfig/json"
+	"flag"
+	"fmt"
+	"os"
 )
 
 type Config struct {
-	Root string `json:"root" cfg:"root" cfgDefault:"."`
+	Root string `json:"root"`
 }
 
 func Load() (*Config, error) {
-	cfg := &Config{}
+	// load root directory from the command line
+	// if not set, use the default value
+	root := "."
+	flag.StringVar(&root, "root", root, "root directory")
+	flag.Parse()
 
-	goconfig.File = "config.json"
-	err := goconfig.Parse(cfg)
-	if err != nil {
-		return nil, err
+	cfg := &Config{
+		Root: root,
 	}
+	fmt.Println("root:", cfg.Root)
+	os.Exit(0)
 
 	return cfg, nil
 }
