@@ -15,15 +15,18 @@ type config struct {
 func main() {
 	cfg := &config{}
 
-	flag.StringVar(&cfg.File, "f", "", "file to read")
+	flag.StringVar(&cfg.File, "f", "-", "file to read")
 	flag.Parse()
 
-	f, err := os.Open(cfg.File)
-	if err != nil {
-		fmt.Println(err)
-		return
+	f := os.Stdin
+	if cfg.File != "-" {
+		f, err := os.Open(cfg.File)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer f.Close()
 	}
-	defer f.Close()
 
 	r := bufio.NewReader(f)
 
