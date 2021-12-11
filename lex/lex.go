@@ -30,6 +30,10 @@ type lexer struct {
 	reader        io.RuneScanner
 }
 
+func (t *Token) String() string {
+	return fmt.Sprintf("%d:%d %s %q", t.Line, t.Column, t.Type, t.Literal)
+}
+
 // Parse is a simple tokenizer engine.
 func Parse(reader io.Reader) (tokens []Token, err error) {
 	tokens, err = parseSimpleTokens(reader)
