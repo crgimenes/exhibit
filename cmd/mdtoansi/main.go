@@ -1,11 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/crgimenes/exhibit/compiler"
 )
 
 type config struct {
@@ -28,18 +29,22 @@ func main() {
 		defer f.Close()
 	}
 
-	r := bufio.NewReader(f)
+	b, err := io.ReadAll(f)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	for {
-		c, _, err := r.ReadRune()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			fmt.Println(err)
-			return
-		}
+	content := []rune(string(b))
+	t := compiler.NewTokenizer(content)
 
-		fmt.Printf("%q\r\n", c)
+	tokens, err := t.Tokenize()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for k, v := range tokens {
+		fmt.Printf("%02d %v\n", k, v)
 	}
 }

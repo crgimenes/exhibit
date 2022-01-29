@@ -12,8 +12,7 @@ import (
 	"strings"
 )
 
-type Compiler struct {
-}
+type Compiler struct{}
 
 func New() *Compiler {
 	return &Compiler{}
