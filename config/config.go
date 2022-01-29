@@ -2,8 +2,6 @@ package config
 
 import (
 	"flag"
-	"fmt"
-	"os"
 )
 
 type Config struct {
@@ -20,8 +18,6 @@ func Load() (*Config, error) {
 	cfg := &Config{
 		Root: root,
 	}
-	fmt.Println("root:", cfg.Root)
-	os.Exit(0)
 
 	return cfg, nil
 }
