@@ -14,6 +14,7 @@ type config struct {
 }
 
 func main() {
+	var err error
 	cfg := &config{}
 
 	flag.StringVar(&cfg.File, "f", "-", "file to read")
@@ -21,7 +22,7 @@ func main() {
 
 	f := os.Stdin
 	if cfg.File != "-" {
-		f, err := os.Open(cfg.File)
+		f, err = os.Open(cfg.File)
 		if err != nil {
 			fmt.Println(err)
 			return
