@@ -12,6 +12,7 @@ import (
 
 	"github.com/crgimenes/exhibit/config"
 	"github.com/crgimenes/exhibit/files"
+	"github.com/crgimenes/exhibit/markdown"
 	terminal "golang.org/x/term"
 )
 
@@ -46,7 +47,12 @@ func ShowFile(
 		return 0, err
 	}
 
-	m := strings.Split(strings.ReplaceAll(string(in), "\r\n", "\n"), "\n")
+	///////////////////////////////////////////////
+
+	result := markdown.Render(string(in), width, 6)
+	///////////////////////////////////////////////
+
+	m := strings.Split(strings.ReplaceAll(string(result), "\r\n", "\n"), "\n")
 	maxLine = len(m)
 	h := maxLine
 	if h > height-1 {
@@ -60,14 +66,13 @@ func ShowFile(
 	if ln > maxLine {
 		ln = maxLine
 	}
-	s := ""
-	for k, v := range m[startLine:ln] {
-		s = fmt.Sprintf("%2d s:%d, ln:%d m:%d %q\r\n", k+startLine+1, startLine, ln, maxLine, v)
-		//_, err = w.Write([]byte(s))
-		_, err = buf.WriteString(s)
-		if err != nil {
-			return 0, err
-		}
+
+	if startLine > (maxLine - h) {
+		startLine = maxLine - h
+	}
+
+	for _, v := range m[startLine:ln] {
+		_, _ = buf.WriteString(v + "\n")
 	}
 
 	_, err = buf.WriteTo(w)
@@ -160,12 +165,12 @@ func (co *Console) Loop() error {
 						if co.startLine > co.maxLine {
 							co.startLine = co.maxLine
 						}
-						/*
-							if co.maxLine-co.height > 0 &&
-								co.startLine > co.maxLine-co.height {
-								co.startLine = co.maxLine - co.height
-							}
-						*/
+
+						if co.maxLine-co.height > 0 &&
+							co.startLine > co.maxLine-co.height {
+							co.startLine = co.maxLine - co.height
+						}
+
 						csi = false
 						break loopCSI
 					case 'C': // right
