@@ -2,13 +2,14 @@ package console
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
-	"github.com/crgimenes/exhibit/compiler"
 	"github.com/crgimenes/exhibit/config"
 	"github.com/crgimenes/exhibit/files"
 	terminal "golang.org/x/term"
@@ -19,7 +20,6 @@ type Console struct {
 	reader    *bufio.Reader
 	term      *terminal.Terminal
 	oldState  *terminal.State
-	compiler  *compiler.Compiler
 	files     []string
 	pageID    int
 	totPages  int
@@ -27,6 +27,52 @@ type Console struct {
 	height    int
 	startLine int
 	maxLine   int
+}
+
+func ShowFile(
+	file string,
+	w io.Writer,
+	startLine, width, height int) (maxLine int, err error) {
+	buf := bytes.Buffer{}
+
+	f, err := os.Open(file)
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+
+	in, err := io.ReadAll(f)
+	if err != nil {
+		return 0, err
+	}
+
+	m := strings.Split(strings.ReplaceAll(string(in), "\r\n", "\n"), "\n")
+	maxLine = len(m)
+	h := maxLine
+	if h > height-1 {
+		h = height - 1
+	}
+	if startLine > maxLine {
+		startLine = maxLine
+	}
+
+	ln := h + startLine
+	if ln > maxLine {
+		ln = maxLine
+	}
+	s := ""
+	for k, v := range m[startLine:ln] {
+		s = fmt.Sprintf("%2d s:%d, ln:%d m:%d %q\r\n", k+startLine+1, startLine, ln, maxLine, v)
+		//_, err = w.Write([]byte(s))
+		_, err = buf.WriteString(s)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	_, err = buf.WriteTo(w)
+
+	return maxLine, err
 }
 
 func (co *Console) update() {
@@ -37,7 +83,7 @@ func (co *Console) update() {
 		os.Exit(-1)
 	}
 	co.Print("\033[H\033[2J\033[?25l") // clear screen, set cursor position, hide cursor
-	co.maxLine, err = co.compiler.CompileFile(
+	co.maxLine, err = ShowFile(
 		co.files[co.pageID],
 		co.term,
 		co.startLine,
@@ -60,8 +106,7 @@ func (co *Console) Printf(format string, a ...interface{}) (n int, err error) {
 
 func New(cfg *config.Config) *Console {
 	return &Console{
-		cfg:      cfg,
-		compiler: compiler.New(),
+		cfg: cfg,
 	}
 }
 

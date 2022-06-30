@@ -6,7 +6,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/crgimenes/exhibit/compiler"
+	markdown "github.com/crgimenes/exhibit/markdown"
+	"golang.org/x/term"
 )
 
 type config struct {
@@ -36,16 +37,16 @@ func main() {
 		return
 	}
 
-	content := []rune(string(b))
-	t := compiler.NewTokenizer(content)
-
-	tokens, err := t.Tokenize()
-	if err != nil {
-		fmt.Println(err)
-		return
+	width := 80
+	if term.IsTerminal(0) {
+		// in a term
+		width, _, err = term.GetSize(0)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 
-	for k, v := range tokens {
-		fmt.Printf("%02d %v\n", k, v)
-	}
+	result := markdown.Render(string(b), width, 6)
+	os.Stdout.Write(result)
 }
