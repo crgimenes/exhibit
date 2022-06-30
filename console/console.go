@@ -47,10 +47,7 @@ func ShowFile(
 		return 0, err
 	}
 
-	///////////////////////////////////////////////
-
 	result := markdown.Render(string(in), width, 6)
-	///////////////////////////////////////////////
 
 	m := strings.Split(strings.ReplaceAll(string(result), "\r\n", "\n"), "\n")
 	maxLine = len(m)

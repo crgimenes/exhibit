@@ -40,10 +40,10 @@ func Extensions() parser.Extensions {
 	return extensions
 }
 
-func Render(source string, lineWidth int, leftPad int, opts ...Options) []byte {
+func Render(source string, lineWidth int, leftPad int) []byte {
 	p := parser.NewWithExtensions(Extensions())
 	nodes := md.Parse([]byte(source), p)
-	renderer := NewRenderer(lineWidth, leftPad, opts...)
+	renderer := NewRenderer(lineWidth, leftPad)
 
 	return md.Render(nodes, renderer)
 }
