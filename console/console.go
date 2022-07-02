@@ -146,38 +146,22 @@ func (co *Console) Loop() error {
 					}
 					switch c {
 					case 'A': // up
-						co.startLine--
-						if co.startLine < 0 {
-							co.startLine = 0
-						}
+						co.up()
+
 						csi = false
 						break loopCSI
 					case 'B': // down
-						co.startLine++
-						if co.startLine > co.maxLine {
-							co.startLine = co.maxLine
-						}
-
-						if co.maxLine-co.height > 0 &&
-							co.startLine > co.maxLine-co.height {
-							co.startLine = co.maxLine - co.height
-						}
+						co.down()
 
 						csi = false
 						break loopCSI
 					case 'C': // right
-						co.startLine = 0
-						if co.pageID < co.totPages-1 {
-							co.pageID++
-						}
+						co.right()
 						csi = false
 						break loopCSI
 
 					case 'D': // left
-						co.startLine = 0
-						if co.pageID > 0 {
-							co.pageID--
-						}
+						co.left()
 						csi = false
 						break loopCSI
 					default:
@@ -192,10 +176,17 @@ func (co *Console) Loop() error {
 					}
 				}
 			}
+		case 'h':
+			co.left()
+		case 'j':
+			co.down()
+		case 'k':
+			co.up()
+		case 'l':
+			co.right()
 		case 'q', 3: // quit
 			return nil
 		case 'e': // edit
-			// get editor environment variable
 			editor := os.Getenv("EDITOR")
 			if editor == "" {
 				editor = "vim"
@@ -222,6 +213,39 @@ func (co *Console) Loop() error {
 			}
 			continue
 		}
+	}
+}
+
+func (co *Console) left() {
+	co.startLine = 0
+	if co.pageID > 0 {
+		co.pageID--
+	}
+}
+
+func (co *Console) right() {
+	co.startLine = 0
+	if co.pageID < co.totPages-1 {
+		co.pageID++
+	}
+}
+
+func (co *Console) down() {
+	co.startLine++
+	if co.startLine > co.maxLine {
+		co.startLine = co.maxLine
+	}
+
+	if co.maxLine-co.height > 0 &&
+		co.startLine > co.maxLine-co.height {
+		co.startLine = co.maxLine - co.height
+	}
+}
+
+func (co *Console) up() {
+	co.startLine--
+	if co.startLine < 0 {
+		co.startLine = 0
 	}
 }
 
