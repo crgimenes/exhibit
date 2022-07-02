@@ -454,7 +454,7 @@ func (r *renderer) renderHeading(w io.Writer, level int) {
 
 	// render the underline, if any
 	if level == 1 {
-		_, _ = fmt.Fprintf(w, "%s\x1b[38;5;13m%s\n", r.pad(), strings.Repeat("─", r.lineWidth-r.leftPad))
+		_, _ = fmt.Fprintf(w, "%s\x1b[38;5;13m%s\x1b[0m\n", r.pad(), strings.Repeat("─", r.lineWidth-r.leftPad))
 	}
 
 	w.Write([]byte("\n"))

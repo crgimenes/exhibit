@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/crgimenes/exhibit/config"
 	"github.com/crgimenes/exhibit/files"
 	"github.com/crgimenes/exhibit/markdown"
+	"github.com/pelletier/go-toml/v2"
 	terminal "golang.org/x/term"
 )
 
@@ -22,6 +24,7 @@ type Console struct {
 	term      *terminal.Terminal
 	oldState  *terminal.State
 	files     []string
+	filesRaw  [][]byte
 	pageID    int
 	totPages  int
 	width     int
@@ -32,22 +35,12 @@ type Console struct {
 
 func ShowFile(
 	file string,
+	fileRaw []byte,
 	w io.Writer,
 	startLine, width, height int) (maxLine int, err error) {
 	buf := bytes.Buffer{}
 
-	f, err := os.Open(file)
-	if err != nil {
-		return 0, err
-	}
-	defer f.Close()
-
-	in, err := io.ReadAll(f)
-	if err != nil {
-		return 0, err
-	}
-
-	result := markdown.Render(string(in), width, 6)
+	result := markdown.Render(string(fileRaw), width, 6)
 
 	m := strings.Split(strings.ReplaceAll(string(result), "\r\n", "\n"), "\n")
 	maxLine = len(m)
@@ -87,6 +80,7 @@ func (co *Console) update() {
 	co.Print("\033[H\033[2J\033[?25l") // clear screen, set cursor position, hide cursor
 	co.maxLine, err = ShowFile(
 		co.files[co.pageID],
+		co.filesRaw[co.pageID],
 		co.term,
 		co.startLine,
 		co.width,
@@ -253,6 +247,70 @@ func (co *Console) Prepare() (err error) {
 	}
 
 	co.totPages = len(co.files)
+	co.filesRaw = make([][]byte, co.totPages)
+
+	for i, f := range co.files {
+		b, err := os.ReadFile(f)
+		if err != nil {
+			return err
+		}
+		body, title, _, err := parseHeader(b)
+		if err != nil {
+			return err
+		}
+		if title != "" {
+			b = []byte(fmt.Sprintf("# %s\n\n%s", title, body))
+		}
+		co.filesRaw[i] = b
+	}
 
 	return nil
+}
+
+func parseHeader(b []byte) (body []byte, title string, draft bool, err error) {
+	aux := strings.Split(string(b), "+++")
+
+	if len(aux) > 1 {
+		d := make(map[string]any)
+		err = toml.Unmarshal([]byte(aux[1]), &d)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		title = getTitle(d)
+		draft = getDraft(d)
+	}
+	if len(aux) > 2 {
+		body = []byte(aux[2])
+	}
+
+	return
+}
+
+func getTitle(d map[string]any) string {
+	title := ""
+	titleAux, ok := d["title"]
+	if !ok {
+		titleAux = ""
+	}
+	switch titleAux.(type) {
+	case string:
+		title = titleAux.(string)
+	}
+	return title
+}
+
+func getDraft(d map[string]any) bool {
+	draft := false
+	draftAux, ok := d["draft"]
+	if !ok {
+		draftAux = false
+	}
+	switch draftAux.(type) {
+	case bool:
+		draft = draftAux.(bool)
+	default:
+		draft = false
+	}
+	return draft
 }
