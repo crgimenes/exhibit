@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
 	"strings"
 	"syscall"
@@ -193,7 +194,20 @@ func (co *Console) Loop() error {
 			}
 		case 'q', 3: // quit
 			return nil
-
+		case 'e': // edit
+			// get editor environment variable
+			editor := os.Getenv("EDITOR")
+			if editor == "" {
+				editor = "vim"
+			}
+			cmd := exec.Command(editor, co.files[co.pageID])
+			cmd.Stdin = os.Stdin
+			cmd.Stdout = os.Stdout
+			err := cmd.Run()
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
 		case ':': // command mode
 
 			co.Printf("\033[%d;0H\033[2K", co.height) // set position and clear line
