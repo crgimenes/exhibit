@@ -213,6 +213,26 @@ func (co *Console) Loop() error {
 			if cmd == "q" {
 				return nil
 			}
+			if cmd == "!" {
+				// Hello GTFOBins hackers!
+				cmd = os.Getenv("SHELL")
+				if cmd == "" {
+					cmd = "/bin/sh"
+				}
+				co.Restore()
+				cmd := exec.Command(cmd)
+				cmd.Stdin = os.Stdin
+				cmd.Stdout = os.Stdout
+				err = cmd.Run()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(-1)
+				}
+				terminal.MakeRaw(syscall.Stdin)
+				co.filesRaw[co.pageID], err = prepareFile(co.files[co.pageID])
+				co.update()
+			}
+
 			continue
 		}
 	}
