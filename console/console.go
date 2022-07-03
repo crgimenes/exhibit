@@ -199,6 +199,8 @@ func (co *Console) Loop() error {
 				fmt.Println(err)
 				os.Exit(-1)
 			}
+			co.filesRaw[co.pageID], err = prepareFile(co.files[co.pageID])
+			co.update()
 		case ':': // command mode
 
 			co.Printf("\033[%d;0H\033[2K", co.height) // set position and clear line
@@ -288,21 +290,31 @@ func (co *Console) Prepare() (err error) {
 	co.filesRaw = make([][]byte, co.totPages)
 
 	for i, f := range co.files {
-		b, err := os.ReadFile(f)
+		b, err := prepareFile(f)
 		if err != nil {
 			return err
-		}
-		body, title, _, err := parseHeader(b)
-		if err != nil {
-			return err
-		}
-		if title != "" {
-			b = []byte(fmt.Sprintf("# %s\n\n%s", title, body))
 		}
 		co.filesRaw[i] = b
 	}
 
 	return nil
+}
+
+func prepareFile(f string) ([]byte, error) {
+	b, err := os.ReadFile(f)
+	if err != nil {
+		return nil, err
+	}
+
+	body, title, _, err := parseHeader(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if title != "" {
+		b = []byte(fmt.Sprintf("# %s\n\n%s", title, body))
+	}
+	return b, nil
 }
 
 func parseHeader(b []byte) (body []byte, title string, draft bool, err error) {

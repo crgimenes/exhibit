@@ -462,6 +462,7 @@ func (r *renderer) renderHeading(w io.Writer, level int) {
 
 func (r *renderer) renderCodeBlock(w io.Writer, node *ast.CodeBlock) {
 	code := string(node.Literal)
+
 	var lexer chroma.Lexer
 	// try to get the lexer from the language tag if any
 	if len(node.Info) > 0 {
