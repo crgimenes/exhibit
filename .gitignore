@@ -18,3 +18,5 @@ nonfree
 
 .DS_Store
 .vscode
+
+dist/
