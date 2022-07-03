@@ -9,6 +9,7 @@ before:
 builds:
   - id: exhibit
     main: ./cmd/exhibit/main.go
+    ldflags: -s -w
     binary: exhibit
     env:
       - CGO_ENABLED=0
@@ -17,6 +18,7 @@ builds:
       - darwin
   - id: keycap
     main: ./cmd/keycap/main.go
+    ldflags: -s -w
     binary: keycap
     env:
       - CGO_ENABLED=0
@@ -25,6 +27,7 @@ builds:
       - darwin
   - id: mdtoansi
     main: ./cmd/mdtoansi/main.go
+    ldflags: -s -w
     binary: mdtoansi
     env:
       - CGO_ENABLED=0
