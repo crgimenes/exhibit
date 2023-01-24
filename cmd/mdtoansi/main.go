@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	markdown "github.com/crgimenes/exhibit/markdown"
+	markdown "crg.eti.br/go/exhibit/markdown"
 	"golang.org/x/term"
 )
 

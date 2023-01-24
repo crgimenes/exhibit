@@ -1,4 +1,4 @@
-module github.com/crgimenes/exhibit
+module crg.eti.br/go/exhibit
 
 go 1.19
 

@@ -12,9 +12,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/crgimenes/exhibit/config"
-	"github.com/crgimenes/exhibit/files"
-	"github.com/crgimenes/exhibit/markdown"
+	"crg.eti.br/go/exhibit/config"
+	"crg.eti.br/go/exhibit/files"
+	"crg.eti.br/go/exhibit/markdown"
 	"github.com/pelletier/go-toml/v2"
 	terminal "golang.org/x/term"
 )

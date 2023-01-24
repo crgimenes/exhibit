@@ -23,7 +23,7 @@ import (
 	"github.com/kyokomi/emoji/v2"
 	"golang.org/x/net/html"
 
-	htmlWalker "github.com/crgimenes/exhibit/markdown/html"
+	htmlWalker "crg.eti.br/go/exhibit/markdown/html"
 )
 
 /*
@@ -126,7 +126,7 @@ type renderer struct {
 	table *tableRenderer
 }
 
-/// NewRenderer creates a new instance of the console renderer
+// / NewRenderer creates a new instance of the console renderer
 func NewRenderer(lineWidth int, leftPad int, opts ...Options) *renderer {
 	r := &renderer{
 		lineWidth:      lineWidth,

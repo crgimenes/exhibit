@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/crgimenes/exhibit/config"
-	"github.com/crgimenes/exhibit/console"
+	"crg.eti.br/go/exhibit/config"
+	"crg.eti.br/go/exhibit/console"
 )
 
 func main() {
