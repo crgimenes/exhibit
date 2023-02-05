@@ -1,6 +1,6 @@
 module crg.eti.br/go/exhibit
 
-go 1.20
+go 1.19
 
 require (
 	github.com/MichaelMure/go-term-text v0.3.1
