@@ -10,8 +10,8 @@ require (
 	github.com/kyokomi/emoji/v2 v2.2.11
 	github.com/pelletier/go-toml/v2 v2.0.6
 	github.com/stretchr/testify v1.8.1
-	golang.org/x/net v0.5.0
-	golang.org/x/term v0.4.0
+	golang.org/x/net v0.7.0
+	golang.org/x/term v0.5.0
 )
 
 require (
@@ -23,6 +23,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	golang.org/x/image v0.5.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
