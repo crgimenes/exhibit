@@ -10,7 +10,7 @@ require (
 	github.com/kyokomi/emoji/v2 v2.2.12
 	github.com/pelletier/go-toml/v2 v2.1.0
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/net v0.16.0
+	golang.org/x/net v0.17.0
 	golang.org/x/term v0.13.0
 )
 
