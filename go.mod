@@ -8,17 +8,10 @@ require (
 	github.com/eliukblau/pixterm v1.3.1
 	github.com/gomarkdown/markdown v0.0.0-20240328165702-4d01890c35c0
 	github.com/kyokomi/emoji/v2 v2.2.12
-<<<<<<< HEAD
-	github.com/pelletier/go-toml/v2 v2.1.0
-	github.com/stretchr/testify v1.8.4
-	golang.org/x/net v0.17.0
-	golang.org/x/term v0.13.0
-=======
 	github.com/pelletier/go-toml/v2 v2.2.0
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/net v0.22.0
 	golang.org/x/term v0.18.0
->>>>>>> bbd9ab9 (update go mod)
 )
 
 require (
