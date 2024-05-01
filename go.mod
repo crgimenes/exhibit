@@ -1,14 +1,14 @@
 module crg.eti.br/go/exhibit
 
-go 1.21
+go 1.22
 
 require (
 	github.com/MichaelMure/go-term-text v0.3.1
 	github.com/alecthomas/chroma v0.10.0
 	github.com/eliukblau/pixterm v1.3.1
-	github.com/gomarkdown/markdown v0.0.0-20240328165702-4d01890c35c0
+	github.com/gomarkdown/markdown v0.0.0-20240419095408-642f0ee99ae2
 	github.com/kyokomi/emoji/v2 v2.2.12
-	github.com/pelletier/go-toml/v2 v2.2.0
+	github.com/pelletier/go-toml/v2 v2.2.1
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/net v0.24.0
 	golang.org/x/term v0.19.0
