@@ -78,6 +78,16 @@ func (co *Console) update() {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
+
+	co.width = co.width - 6 // left margin
+
+	if co.width < 80 {
+		co.width = 80
+	}
+	if co.height < 24 {
+		co.height = 24
+	}
+
 	co.Print("\033[H\033[2J\033[?25l") // clear screen, set cursor position, hide cursor
 	co.maxLine, err = ShowFile(
 		co.files[co.pageID],
