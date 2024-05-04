@@ -8,7 +8,7 @@ require (
 	github.com/eliukblau/pixterm v1.3.1
 	github.com/gomarkdown/markdown v0.0.0-20240419095408-642f0ee99ae2
 	github.com/kyokomi/emoji/v2 v2.2.12
-	github.com/pelletier/go-toml/v2 v2.2.1
+	github.com/pelletier/go-toml/v2 v2.2.2
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/net v0.24.0
 	golang.org/x/term v0.19.0
